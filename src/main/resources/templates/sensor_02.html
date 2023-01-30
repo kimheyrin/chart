@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+        <!--2분 주기로 새로고침(서버 보호)-->
+        <META HTTP-EQUIV="refresh" CONTENT="120">
+    <title>Sensor_02</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+
+    <style type="text/css">
+        section{
+            float: left;
+		    height: 100%;
+            width: 100%%;
+        }
+    </style>
+</head>
+<body id="timetable" th:fragment="timetable" bgcolor='black'>
+
+<header th:insert="header.html"></header>
+
+<!--***********************    그래프   ***************************-->
+<section>
+    <div class="chart" style="width: 1500px; height: 500px;">
+	    <!--차트가 그려질 부분-->
+	    <canvas id="myChart"></canvas>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        /*jslint devel: true */
+        /* eslint-disable no-console */
+        /*eslint no-undef: "error"*/
+        /*eslint-env node*/
+        var dttm = new Array();
+        var value_02 = new Array();
+        var sensor = new Object();
+        var sensor_02 = new Object();
+
+        /*[# th:each="Timegragh : ${TimegraghList}"]*/
+        sensor={}
+        sensor_02={}
+        sensor =  /*[[${Timegragh.dttm}]]*/;
+        sensor_02=  /*[[${Timegragh.value_02}]]*/;
+        dttm.unshift(sensor);
+        value_02.unshift(sensor_02);
+        /*[/]*/
+
+        dttm=dttm.slice(-99)
+        value_02=value_02.slice(-99)
+
+
+
+
+        var context = document
+            .getElementById('myChart')
+            .getContext('2d');
+
+        var myChart = new Chart(context, {
+            type: 'line', // 차트의 형태
+            data: { // 차트에 들어갈 데이터
+                labels: dttm,
+                datasets: [
+                    { //데이터
+                        point:'false',
+                        label: 'test1', //차트 제목
+                        fill: false, // line 형태일 때, 선 안쪽을 채우는지 안채우는지
+                        data: value_02,
+                        backgroundColor: [
+                            //색상
+                            'rgba(255, 225, 225, 1)',
+                        ],
+                        borderColor: [
+                            //경계선 색상
+                            'rgba(255, 225, 225, 1)',
+                        ],
+                        borderWidth: 1 //경계선 굵기
+                    }
+                ]
+            },
+            options: {
+            
+            }
+        });
+
+    </script>
+
+    <!--***********************    표   ***************************-->
+    <div style="position: relative; left: 35%; top: 250px;">
+        <table border='1', width ="500">
+            <thead>
+            <tr>
+                <th scope="col" style="color:white">날짜</th>
+                <th scope="col", align = "center" style="color:white">센서_02 값</th>
+            </tr>
+            </thead>
+    
+            <tbody>
+                <tr style="color:white" th:each="Timegragh : ${TimegraghList}">
+                    <th scope="row">
+                        <span th:text="${Timegragh.dttm}"></span>
+                    </th>
+                    <td>
+                        <span th:text="${Timegragh.value_02}"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+    var interval;
+    function updateComment() {
+        var commentBean = {
+            dttm:$("#timegraghdttm").val(),
+            value_02: $("#timegraghvalue_02").val(),
+        };
+        $.ajax({
+            url: "/sensor_02",
+            type: "Get",
+            data: commentBean,
+        })
+        .done(function (data) {
+            $('#timetable').html(data);
+        });
+    }
+    clearInterval(interval);
+    interval = setInterval(updateComment,5000);
+</script>
+</body>
+</script>
+</html>
